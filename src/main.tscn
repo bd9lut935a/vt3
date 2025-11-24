@@ -12,3 +12,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.635692, 0, -0.72277 )
 
 [node name="FPV" parent="." instance=ExtResource( 1 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.505706, 1.55889, -0.234156 )
+
+[node name="StartOverlay" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
