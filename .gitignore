@@ -3,7 +3,7 @@
 export.cfg
 export_presets.cfg
 
-# Mono (C#) build artifacts (if using)
+# Mono (C#) build artifacts
 .mono/
 *.csproj
 *.sln
@@ -31,14 +31,17 @@ desktop.ini
 *.bak
 *.orig
 
-# Ignore all export directories EXCEPT docs/
-# (docs/ contains your HTML5 export for GitHub Pages)
+# Ignore all export directories except docs/
 bin/
 *.zip
 *.apk
 *.exe
-*.pck
 *.app
+
+# Ignore all .pck globally
+*.pck
+# Keep .pck inside docs/
+!docs/*.pck
 
 # Godot cache
 .cache/
