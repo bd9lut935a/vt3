@@ -17,6 +17,7 @@ var fly_mode = false
 onready var cam = $Camera
 onready var shape = $CollisionShape
 
+
 func _ready():
 	var capsule = CapsuleShape.new()
 	capsule.height = PLAYER_HEIGHT
@@ -24,7 +25,11 @@ func _ready():
 	shape.shape = capsule
 	cam.translation.y = CAMERA_HEIGHT
 
+
 func _input(event):
+	if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+		return
+
 	# Toggle fly mode
 	if event is InputEventKey and event.is_pressed():
 		if event.scancode == KEY_F:
@@ -36,7 +41,12 @@ func _input(event):
 		cam.rotate_x(deg2rad(-event.relative.y * mouse_sensitivity))
 		cam.rotation_degrees.x = clamp(cam.rotation_degrees.x, -85, 85)
 
+
 func _physics_process(delta):
+	if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
+		velocity = move_and_slide(Vector3.ZERO, Vector3.UP)
+		return
+
 	var direction = Vector3.ZERO
 	if Input.is_action_pressed("ui_up"):
 		direction -= transform.basis.z
@@ -66,7 +76,8 @@ func _physics_process(delta):
 		velocity.z = direction.z * speed
 		velocity.y += gravity * delta
 
-		if is_on_floor() and Input.is_action_just_pressed("ui_accept"):  # Space
-			velocity.y = jump_strength
+		if is_on_floor():
+			if Input.is_action_just_pressed("ui_accept"):  # Space
+				velocity.y = jump_strength
 
 		velocity = move_and_slide(velocity, Vector3.UP)
