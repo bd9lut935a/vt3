@@ -1,0 +1,44 @@
+# Godot-specific
+.import/
+export.cfg
+export_presets.cfg
+
+# Mono (C#) build artifacts
+.mono/
+*.csproj
+*.sln
+*.userprefs
+*.dll
+*.exe
+*.pdb
+*.mdb
+
+# Godot temporary files
+*.tmp
+*.log
+*.swp
+*.swx
+*.tres~
+
+# OS-specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Backup files
+*_backup.*
+*_old.*
+*.bak
+*.orig
+
+# Godot export directories
+/bin/
+*.zip
+*.apk
+*.exe
+*.pck
+*.app
+
+# Godot cache
+.cache/
+
