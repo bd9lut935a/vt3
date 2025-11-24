@@ -5,7 +5,7 @@ var mouse_captured = false
 func _ready():
 	# Start mouse free and visible
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	mouse_captured = false
+	mouse_captured = true
 
 func _unhandled_input(event):
 	# --- Capture mouse on left click ---
