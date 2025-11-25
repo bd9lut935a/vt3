@@ -25,29 +25,41 @@ func _ready():
 	shape.shape = capsule
 	cam.translation.y = CAMERA_HEIGHT
 
+	# No more capture requirements
+	print("FPV: Running in capture-free mode.")
+
 
 func _input(event):
-	if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
-		return
-
-	# Toggle fly mode
+	# --- Toggle fly mode ---
 	if event is InputEventKey and event.is_pressed():
 		if event.scancode == KEY_F:
-			fly_mode = not fly_mode
+			fly_mode = !fly_mode
 
-	# Mouse look
-	if event is InputEventMouseMotion and event.relative.length_squared() != 0:
-		rotate_y(deg2rad(-event.relative.x * mouse_sensitivity))
-		cam.rotate_x(deg2rad(-event.relative.y * mouse_sensitivity))
-		cam.rotation_degrees.x = clamp(cam.rotation_degrees.x, -85, 85)
+	# --- Desktop mouse motion ---
+	if event is InputEventMouseMotion:
+		_apply_look(event.relative)
+
+	# --- Mobile touch drag (becomes look movement) ---
+	if event is InputEventScreenDrag:
+		_apply_look(event.relative)
+
+
+func _apply_look(relative):
+	if relative.length_squared() == 0:
+		return
+
+	# Horizontal look (yaw)
+	rotate_y(deg2rad(-relative.x * mouse_sensitivity))
+
+	# Vertical look (pitch)
+	cam.rotate_x(deg2rad(-relative.y * mouse_sensitivity))
+	cam.rotation_degrees.x = clamp(cam.rotation_degrees.x, -85, 85)
 
 
 func _physics_process(delta):
-	if Input.get_mouse_mode() != Input.MOUSE_MODE_CAPTURED:
-		velocity = move_and_slide(Vector3.ZERO, Vector3.UP)
-		return
-
 	var direction = Vector3.ZERO
+
+	# Desktop or onscreen button mappings
 	if Input.is_action_pressed("ui_up"):
 		direction -= transform.basis.z
 	if Input.is_action_pressed("ui_down"):
@@ -62,7 +74,6 @@ func _physics_process(delta):
 	if fly_mode:
 		velocity = direction * fly_speed
 
-		# Fly up/down directly with E/Q keys
 		if Input.is_key_pressed(KEY_E):
 			velocity.y = fly_speed
 		elif Input.is_key_pressed(KEY_Q):
@@ -71,13 +82,14 @@ func _physics_process(delta):
 			velocity.y = 0
 
 		velocity = move_and_slide(velocity, Vector3.UP)
+
 	else:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 		velocity.y += gravity * delta
 
 		if is_on_floor():
-			if Input.is_action_just_pressed("ui_accept"):  # Space
+			if Input.is_action_just_pressed("ui_accept"):
 				velocity.y = jump_strength
 
 		velocity = move_and_slide(velocity, Vector3.UP)
