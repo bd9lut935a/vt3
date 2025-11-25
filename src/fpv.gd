@@ -22,6 +22,7 @@ onready var cam = $Camera
 onready var shape = $CollisionShape
 onready var forward_btn = $"/root/Main/MobileControls/Forward"
 onready var reverse_btn = $"/root/Main/MobileControls/Reverse"
+onready var flytoggle_btn = $"/root/Main/MobileControls/FlyToggle"
 
 func _ready():
 	# Player collision capsule
@@ -31,13 +32,15 @@ func _ready():
 	shape.shape = capsule
 	cam.translation.y = CAMERA_HEIGHT
 
-	# Connect signals (optional, still safe)
+	# Connect signals for mobile buttons
 	if forward_btn:
 		forward_btn.connect("pressed", self, "_on_forward_pressed")
 		forward_btn.connect("released", self, "_on_forward_released")
 	if reverse_btn:
 		reverse_btn.connect("pressed", self, "_on_reverse_pressed")
 		reverse_btn.connect("released", self, "_on_reverse_released")
+	if flytoggle_btn:
+		flytoggle_btn.connect("pressed", self, "_on_flytoggle_pressed")
 
 
 func _process(delta):
@@ -49,11 +52,11 @@ func _process(delta):
 
 
 func _input(event):
-	# --- Fly toggle ---
+	# --- Fly toggle with F key ---
 	if event is InputEventKey and event.is_pressed() and event.scancode == KEY_F:
 		fly_mode = !fly_mode
 
-	# --- Look input ---
+	# --- Look input (mouse or touch) ---
 	if event is InputEventMouseMotion or event is InputEventScreenDrag:
 		_apply_look(event.relative)
 
@@ -69,30 +72,41 @@ func _apply_look(relative):
 func _physics_process(delta):
 	var direction = Vector3.ZERO
 
-	# Movement from keyboard or mobile buttons
-	if Input.is_action_pressed("ui_up") or move_forward:
-		direction -= transform.basis.z
-	if Input.is_action_pressed("ui_down") or move_backward:
-		direction += transform.basis.z
-	if Input.is_action_pressed("ui_left"):
-		direction -= transform.basis.x
-	if Input.is_action_pressed("ui_right"):
-		direction += transform.basis.x
-
-	direction = direction.normalized()
-
 	if fly_mode:
+		# Full 3D camera-relative movement
+		var cam_basis = cam.global_transform.basis
+		if Input.is_action_pressed("ui_up") or move_forward:
+			direction -= cam_basis.z
+		if Input.is_action_pressed("ui_down") or move_backward:
+			direction += cam_basis.z
+		if Input.is_action_pressed("ui_left"):
+			direction -= cam_basis.x
+		if Input.is_action_pressed("ui_right"):
+			direction += cam_basis.x
+
+		direction = direction.normalized()
 		velocity = direction * fly_speed
 
+		# Optional vertical adjustment (E/Q)
 		if Input.is_key_pressed(KEY_E):
-			velocity.y = fly_speed
+			velocity.y += fly_speed
 		elif Input.is_key_pressed(KEY_Q):
-			velocity.y = -fly_speed
-		else:
-			velocity.y = 0
+			velocity.y -= fly_speed
 
 		velocity = move_and_slide(velocity, Vector3.UP)
 	else:
+		# Ground movement (parallel to floor)
+		if Input.is_action_pressed("ui_up") or move_forward:
+			direction -= transform.basis.z
+		if Input.is_action_pressed("ui_down") or move_backward:
+			direction += transform.basis.z
+		if Input.is_action_pressed("ui_left"):
+			direction -= transform.basis.x
+		if Input.is_action_pressed("ui_right"):
+			direction += transform.basis.x
+
+		direction = direction.normalized()
+
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 		velocity.y += gravity * delta
@@ -103,7 +117,7 @@ func _physics_process(delta):
 		velocity = move_and_slide(velocity, Vector3.UP)
 
 
-# --- Optional signal callbacks (for reference) ---
+# --- Optional signal callbacks for mobile buttons ---
 func _on_forward_pressed():
 	pass
 func _on_forward_released():
@@ -112,3 +126,5 @@ func _on_reverse_pressed():
 	pass
 func _on_reverse_released():
 	pass
+func _on_flytoggle_pressed():
+	fly_mode = !fly_mode

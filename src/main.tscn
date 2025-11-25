@@ -6,6 +6,9 @@
 
 [node name="Main" type="Spatial"]
 script = ExtResource( 3 )
+__meta__ = {
+"_edit_horizontal_guides_": [  ]
+}
 
 [node name="Platform" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.635692, 0, -0.72277 )
@@ -28,3 +31,10 @@ margin_top = 573.0
 margin_right = 68.0
 margin_bottom = 593.0
 text = "Reverse"
+
+[node name="FlyToggle" type="Button" parent="MobileControls"]
+margin_left = 3.0
+margin_top = 354.0
+margin_right = 56.0
+margin_bottom = 374.0
+text = "Toggle"
